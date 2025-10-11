@@ -3,7 +3,7 @@ import CioMessagingPushFCM
 
 import Foundation
 
-extension MessagingPushFCM {
+public extension MessagingPushFCM {
     /**
      Initialize and configure `MessagingPushFCM`.
      Call this function in your app if you want to initialize and configure the module to
@@ -11,9 +11,9 @@ extension MessagingPushFCM {
      */
     @discardableResult
     @available(iOSApplicationExtension, unavailable)
-    public static func initialize(
+    static func initialize(
         withConfig config: MessagingPushConfigOptions = MessagingPushConfigBuilder().build()
     ) -> MessagingPushInstance {
-        return internalSetup(withConfig: config, firebaseService: FirebaseImpl())
+        internalSetup(withConfig: config, firebaseService: FirebaseImpl())
     }
 }
