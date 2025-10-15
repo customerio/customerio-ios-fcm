@@ -24,5 +24,5 @@ Pod::Spec.new do |spec|
   spec.dependency "CustomerIOMessagingPushFCM", ">= 3.13.0"
   
   # Add Firebase dependency - major version 12 up to next major version
-  spec.dependency "FirebaseMessaging", "~> 12.0"
+  spec.dependency "FirebaseMessaging", ">= 8.7.0", "< 13.0.0"
 end
