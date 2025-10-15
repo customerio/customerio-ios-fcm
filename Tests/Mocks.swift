@@ -1,7 +1,7 @@
-import Foundation
-import FirebaseMessaging
 @testable import CioFirebaseWrapper
 import CioMessagingPushFCM
+import FirebaseMessaging
+import Foundation
 
 // MARK: - Mock FirebaseMessaging
 
@@ -10,16 +10,16 @@ class MockFirebaseMessaging {
     var mockDelegate: MessagingDelegate?
     var tokenCompletion: ((String?, Error?) -> Void)?
     var tokenCallCount = 0
-    
+
     // Helper methods for testing
     func simulateTokenSuccess(_ token: String) {
         tokenCompletion?(token, nil)
     }
-    
+
     func simulateTokenError(_ error: Error) {
         tokenCompletion?(nil, error)
     }
-    
+
     func simulateRegistrationToken(_ token: String?) {
         if let delegate = mockDelegate {
             let messaging = Messaging.messaging()
@@ -38,7 +38,7 @@ enum TestError: Error, Equatable {
 
 // MARK: - Test Data
 
-struct TestData {
+enum TestData {
     static let validApnsToken = Data([0x01, 0x02, 0x03, 0x04, 0x05])
     static let validFCMToken = "valid_fcm_token_12345"
     static let invalidToken = ""

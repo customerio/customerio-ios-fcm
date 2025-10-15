@@ -1,0 +1,8 @@
+name: Lint
+
+on: [pull_request]
+
+jobs:
+  lint:
+    uses: customerio/mobile-ci-tools/.github/workflows/ios-lint.yml@shared-ios-ci
+
