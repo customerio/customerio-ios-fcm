@@ -3,9 +3,9 @@ name: Tests
 on: 
   pull_request:
   push:
-    branches: [main] # code coverage reporting needs to be on main so all PRs can compare against it. 
+    branches: [main] # code coverage reporting needs to be on main so all PRs can compare against it.
 
-concurrency: # cancel previous workflow run if one exists. 
+concurrency: # cancel previous workflow run if one exists.
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
