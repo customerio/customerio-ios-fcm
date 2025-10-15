@@ -11,7 +11,7 @@ concurrency: # cancel previous workflow run if one exists.
 
 jobs:
   test:
-    uses: customerio/mobile-ci-tools/.github/workflows/ios-test.yml@shared-ios-ci
+    uses: customerio/mobile-ci-tools/.github/workflows/ios-test.yml@main
     with:
       scheme: 'CioFirebaseWrapper'
       xcresult-name: 'CioFirebaseWrapper.xcresult'
