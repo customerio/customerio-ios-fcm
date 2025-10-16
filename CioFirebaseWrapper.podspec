@@ -21,7 +21,7 @@ Pod::Spec.new do |spec|
   spec.module_name = "CioFirebaseWrapper"
   
   # Add main SDK dependency
-  spec.dependency "CustomerIOMessagingPushFCM", ">= 3.13.0"
+  spec.dependency "CustomerIOMessagingPushFCM", ">= 4.0.0"
   
   # Add Firebase dependency - major version 12 up to next major version
   spec.dependency "FirebaseMessaging", ">= 8.7.0", "< 13.0.0"
