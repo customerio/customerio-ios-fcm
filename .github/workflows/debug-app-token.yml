@@ -50,7 +50,7 @@ jobs:
       - name: Hash credentials persisted by default checkout
         run: |
           cd default-checkout
-          h=$(git config --get http.https://github.com/.extraheader | awk '{print $3}' | base64 -d | cut -d: -f2 | shasum -a 256 | cut -d' ' -f1)
+          h=$(git config --get http.https://github.com/.extraheader | awk '{print $3}' | base64 -d | cut -d: -f2 | tr -d '\n' | shasum -a 256 | cut -d' ' -f1)
           echo "default-checkout persisted sha256: $h"
 
       - name: Checkout WITH App token
@@ -62,5 +62,5 @@ jobs:
       - name: Hash credentials persisted by App-token checkout
         run: |
           cd app-checkout
-          h=$(git config --get http.https://github.com/.extraheader | awk '{print $3}' | base64 -d | cut -d: -f2 | shasum -a 256 | cut -d' ' -f1)
+          h=$(git config --get http.https://github.com/.extraheader | awk '{print $3}' | base64 -d | cut -d: -f2 | tr -d '\n' | shasum -a 256 | cut -d' ' -f1)
           echo "app-checkout persisted sha256: $h"
