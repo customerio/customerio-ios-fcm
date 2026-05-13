@@ -6,10 +6,13 @@ name: Debug App token
 # and the expected hash equalities below hold.
 
 on:
-  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/debug-app-token.yml
   pull_request:
     paths:
       - .github/workflows/debug-app-token.yml
+  workflow_dispatch:
 
 jobs:
   probe:
