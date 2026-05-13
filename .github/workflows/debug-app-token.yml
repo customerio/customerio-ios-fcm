@@ -33,12 +33,14 @@ jobs:
       - name: Hash the App token
         env:
           T: ${{ steps.app_token.outputs.token }}
-        run: echo "app-token sha256: $(printf %s "$T" | shasum -a 256 | cut -d' ' -f1)"
+        run: |
+          echo "app-token sha256: $(printf %s "$T" | shasum -a 256 | cut -d' ' -f1)"
 
       - name: Hash GITHUB_TOKEN
         env:
           T: ${{ secrets.GITHUB_TOKEN }}
-        run: echo "GITHUB_TOKEN sha256: $(printf %s "$T" | shasum -a 256 | cut -d' ' -f1)"
+        run: |
+          echo "GITHUB_TOKEN sha256: $(printf %s "$T" | shasum -a 256 | cut -d' ' -f1)"
 
       - name: Checkout WITHOUT token override
         uses: actions/checkout@v4
