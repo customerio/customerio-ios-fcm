@@ -15,12 +15,7 @@ let package = Package(
     ],
     dependencies: [
          .package(url: "https://github.com/customerio/customerio-ios.git", from: "4.0.0"),
-         // Upper bound capped below 12.13.0: that release added a trailing comma in a
-         // function-call argument list to its Package.swift (Swift 6.1 syntax), which
-         // the Xcode 16.2 toolchain used by CI rejects with
-         //   /Package.swift:199:5: error: unexpected ',' separator
-         // Lift the cap once CI is on Xcode 16.3+ (Swift 6.1).
-         .package(url: "https://github.com/firebase/firebase-ios-sdk.git", "8.7.0"..<"12.13.0")
+         .package(url: "https://github.com/firebase/firebase-ios-sdk.git", "8.7.0"..<"13.0.0")
     ],
     targets: [
         .target(
