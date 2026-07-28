@@ -14,7 +14,17 @@ let package = Package(
         )
     ],
     dependencies: [
-         .package(url: "https://github.com/customerio/customerio-ios.git", from: "4.0.0"),
+         // TEMPORARY SCAFFOLD — branch `inbox/overlay-inbox-pin`, do not merge, do not release.
+         //
+         // Exists only so the wrapper SDKs can consume the unreleased Visual Notification Inbox
+         // (`MessagingInbox`) from customerio-ios `feat/overlay-inbox` while it is still in review.
+         // SwiftPM refuses to resolve a package that one dependency requires by BRANCH and another
+         // requires by VERSION, so a wrapper that branch-pins customerio-ios cannot also depend on a
+         // customerio-ios-fcm that version-pins it (`from: "4.0.0"` on main). Matching the branch
+         // requirement here gives one package identity with no version requirement.
+         //
+         // Delete this branch once the inbox ships; `main` keeps the version pin.
+         .package(url: "https://github.com/customerio/customerio-ios.git", branch: "feat/overlay-inbox"),
          .package(url: "https://github.com/firebase/firebase-ios-sdk.git", "8.7.0"..<"13.0.0")
     ],
     targets: [
