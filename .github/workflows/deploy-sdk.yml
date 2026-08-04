@@ -146,7 +146,7 @@ jobs:
     if: ${{ needs.deploy-git-tag.outputs.new_release_published == 'true' || github.event_name == 'workflow_dispatch' }}
     env:
       COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - name: Checkout git tag that got created in previous step
         uses: actions/checkout@v4
@@ -169,7 +169,7 @@ jobs:
             echo "version=${{ inputs.existing-git-tag }}" >> $GITHUB_OUTPUT
           fi
 
-      - uses: customerio/mobile-ci-tools/github-actions/ios/setup-ios/v1@MacOS-15+iOS-26
+      - uses: customerio/mobile-ci-tools/github-actions/ios/setup-ios/v1@macos-26
 
       - name: Install cocoapods
         run: gem install cocoapods
