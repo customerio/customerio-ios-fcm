@@ -1,0 +1,48 @@
+name: Dependency versions
+
+# Runs when a manifest that declares a shared dependency changes, and also when the checker itself changes -
+# otherwise a pull request that weakened the checker would run no check at all, which is how its predecessor
+# went unnoticed for ten months (MBL-2247). Using GitHub's own path filter as the gate means added, renamed and
+# deleted manifests are all covered, and the Swift and CocoaPods toolchains are installed only when needed.
+on:
+  pull_request:
+    paths:
+      - 'Package.swift'
+      - '**.podspec'
+      - 'scripts/check-dependency-versions.rb'
+      - '.github/workflows/dependency-versions.yml'
+
+permissions:
+  contents: read # Only needs to read the manifests.
+
+concurrency: # cancel previous workflow run if one exists.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    # ubuntu rather than macOS: no Xcode is needed, and the shared macOS runners are heavily queued.
+    runs-on: ubuntu-latest
+    name: Assert SwiftPM and CocoaPods allow the same versions
+    steps:
+      - uses: actions/checkout@v4
+
+      # Pinned rather than left to the action's default: the checker reads the JSON schema of
+      # `swift package dump-package`, so the toolchain version is part of its contract.
+      - name: Set up Swift
+        uses: swift-actions/setup-swift@7ca6abe6b3b0e8b5421b88be48feee39cbf52c6a # v2.4.0
+        with:
+          swift-version: '6.1.0'
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        with:
+          ruby-version: '3.4'
+
+      # Installed directly rather than through the Gemfile, which exists for fastlane. CocoaPods is needed both
+      # to read the podspec back out via `pod ipc spec` and for Pod::Version/Pod::Requirement.
+      - name: Install CocoaPods
+        run: gem install cocoapods -v 1.16.2 --no-document
+
+      - name: Compare declared dependency versions
+        run: ruby scripts/check-dependency-versions.rb

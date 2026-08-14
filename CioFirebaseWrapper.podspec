@@ -20,9 +20,10 @@ Pod::Spec.new do |spec|
   
   spec.module_name = "CioFirebaseWrapper"
   
-  # Add main SDK dependency
-  spec.dependency "CustomerIOMessagingPushFCM", ">= 4.0.0"
-  
-  # Add Firebase dependency - major version 12 up to next major version
+  # Add main SDK dependency. Upper bound mirrors `from: "4.0.0"` in Package.swift, which SwiftPM resolves
+  # as ">= 4.0.0, < 5.0.0" - both package managers must allow the same versions.
+  spec.dependency "CustomerIOMessagingPushFCM", ">= 4.0.0", "< 5.0.0"
+
+  # Add Firebase dependency - 8.7.0 up to but excluding the next major after 12
   spec.dependency "FirebaseMessaging", ">= 8.7.0", "< 13.0.0"
 end
