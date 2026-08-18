@@ -206,7 +206,7 @@ failures = PAIRS.filter_map do |pair|
 
   puts "  FAIL #{pair[:label]}: Package.swift allows #{spm}, #{podspec} allows #{pod}"
   "#{pair[:label]}: Package.swift allows #{spm} but #{podspec} allows #{pod}"
-rescue RuntimeError => error
+rescue RuntimeError, ArgumentError => error
   puts "  FAIL #{pair[:label]}: #{error.message}"
   "#{pair[:label]}: #{error.message}"
 end
