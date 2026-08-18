@@ -1,0 +1,68 @@
+name: Dependency versions
+
+# Deliberately not filtered with `paths:`. A path-filtered workflow reports no conclusion at all on the pull
+# requests it skips, so it can never be marked a required check - which would leave this check green by
+# default, the same shape as the bug it replaces (MBL-2247). The job therefore always runs and always reports,
+# and the gate lives in the first step below so the Swift and CocoaPods toolchains are still only installed
+# when a manifest actually changed.
+on: pull_request
+
+permissions:
+  contents: read # Read the manifests.
+  pull-requests: read # List the files this pull request changes.
+
+concurrency: # cancel previous workflow run if one exists.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    # ubuntu rather than macOS: no Xcode is needed, and the shared macOS runners are heavily queued.
+    runs-on: ubuntu-latest
+    name: Assert SwiftPM and CocoaPods allow the same versions
+    steps:
+      - uses: actions/checkout@v4
+
+      # Asks the API for the file list rather than diffing locally, which would need the full history fetched
+      # just to answer one question.
+      - name: Does this pull request touch a manifest?
+        id: manifests
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          changed=$(gh api \
+            "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
+            --paginate --jq '.[].filename')
+          echo "Files changed by this pull request:"
+          echo "$changed" | sed 's/^/  /'
+          if grep -qE '^(Package\.swift|.+\.podspec|scripts/check-dependency-versions\.rb|\.github/workflows/dependency-versions\.yml)$' <<<"$changed"; then
+            echo 'relevant=true' >> "$GITHUB_OUTPUT"
+            echo '=> a manifest or the checker changed, comparing declared versions'
+          else
+            echo 'relevant=false' >> "$GITHUB_OUTPUT"
+            echo '=> no manifest touched, nothing to compare'
+          fi
+
+      # Pinned rather than left to the action's default: the checker reads the JSON schema of
+      # `swift package dump-package`, so the toolchain version is part of its contract.
+      - name: Set up Swift
+        if: steps.manifests.outputs.relevant == 'true'
+        uses: swift-actions/setup-swift@7ca6abe6b3b0e8b5421b88be48feee39cbf52c6a # v2.4.0
+        with:
+          swift-version: '6.1.0'
+
+      - name: Set up Ruby
+        if: steps.manifests.outputs.relevant == 'true'
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        with:
+          ruby-version: '3.4'
+
+      # Installed directly rather than through the Gemfile, which exists for fastlane. CocoaPods is needed both
+      # to read the podspec back out via `pod ipc spec` and for Pod::Version/Pod::Requirement.
+      - name: Install CocoaPods
+        if: steps.manifests.outputs.relevant == 'true'
+        run: gem install cocoapods -v 1.16.2 --no-document
+
+      - name: Compare declared dependency versions
+        if: steps.manifests.outputs.relevant == 'true'
+        run: ruby scripts/check-dependency-versions.rb
