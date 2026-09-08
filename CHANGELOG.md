@@ -1,3 +1,9 @@
+## [1.0.1](https://github.com/customerio/customerio-ios-fcm/compare/1.0.0...1.0.1) (2026-09-08)
+
+### Bug Fixes
+
+* **deps:** update Faraday security pin to 1.10.6 ([#15](https://github.com/customerio/customerio-ios-fcm/issues/15)) ([e69888b](https://github.com/customerio/customerio-ios-fcm/commit/e69888b61e3b21d6b26ec24d2147e38a60fa852d))
+
 ## 1.0.0 (2025-10-16)
 
 ### ⚠ BREAKING CHANGES

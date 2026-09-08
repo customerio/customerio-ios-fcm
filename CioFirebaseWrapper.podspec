@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = "CioFirebaseWrapper"
-  spec.version      = "1.0.0"
+  spec.version      = "1.0.1"
   spec.summary      = "Customer.io Firebase Wrapper SDK for iOS."
   spec.homepage     = "https://github.com/customerio/customerio-ios-fcm"
   spec.documentation_url = 'https://customer.io/docs/sdk/ios/'
