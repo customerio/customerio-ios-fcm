@@ -22,7 +22,8 @@ let package = Package(
             name: "CioFirebaseWrapper",
             dependencies: [
                 .product(name: "MessagingPushFCM", package: "customerio-ios"),
-                .product(name: "FirebaseMessaging", package: "firebase-ios-sdk")
+                .product(name: "FirebaseMessaging", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseInstallations", package: "firebase-ios-sdk")
             ],
             path: "Sources"
         ),

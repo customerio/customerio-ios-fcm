@@ -79,6 +79,7 @@ ROOT = File.expand_path('..', __dir__)
 # SwiftPM's canonical identity paired with the pod name, which never matches it.
 PAIRS = [
   {label: 'Firebase', spm_identity: 'firebase-ios-sdk', pod_name: 'FirebaseMessaging'},
+  {label: 'Firebase Installations', spm_identity: 'firebase-ios-sdk', pod_name: 'FirebaseInstallations'},
   {label: 'Customer.io iOS SDK', spm_identity: 'customerio-ios', pod_name: 'CustomerIOMessagingPushFCM'}
 ].freeze
 
