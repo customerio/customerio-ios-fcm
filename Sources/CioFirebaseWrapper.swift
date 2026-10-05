@@ -13,7 +13,7 @@ class FirebaseImpl: FirebaseService {
     private let registrationObserver: FirebaseRegistrationObserver
 
     init(notificationCenter: NotificationCenter = .default) {
-        registrationObserver = FirebaseRegistrationObserver(notificationCenter: notificationCenter)
+        self.registrationObserver = FirebaseRegistrationObserver(notificationCenter: notificationCenter)
         registrationObserver.isInstallationIdEnabled = { [weak self] in
             self?.isInstallationIdEnabled ?? false
         }
