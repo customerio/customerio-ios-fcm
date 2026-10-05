@@ -73,3 +73,25 @@ public extension Messaging {
         return messaging
     }
 }
+
+// MARK: - Mock FirebaseServiceDelegate
+
+class MockFirebaseServiceDelegate: FirebaseServiceDelegate {
+    var receivedToken: String?
+    var tokenCallCount = 0
+    var receivedRegistrations: [String?] = []
+    var receivedUnregistrations: [String] = []
+
+    func didReceiveRegistrationToken(_ token: String?) {
+        receivedToken = token
+        tokenCallCount += 1
+    }
+
+    func didReceiveRegistration(_ installationId: String?) {
+        receivedRegistrations.append(installationId)
+    }
+
+    func didUnregister(_ installationId: String) {
+        receivedUnregistrations.append(installationId)
+    }
+}
