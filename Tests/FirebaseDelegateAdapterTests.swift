@@ -131,6 +131,40 @@ class FirebaseDelegateAdapterTests: XCTestCase {
         XCTAssertNil(adapter.cioFCMMessagingDelegate)
         XCTAssertEqual(mockDelegate.tokenCallCount, 0)
     }
+
+    // MARK: - FID Delegate Forwarding Tests
+
+    // Firebase checks these selectors with respondsToSelector: and calls them through the Objective-C runtime.
+    func testFidDelegateSelectors_whenFirebaseCallsThem_thenTheyAreForwarded() {
+        let registrationSelector = NSSelectorFromString("messaging:didReceiveRegistration:")
+        let unregisterSelector = NSSelectorFromString("messaging:didUnregister:")
+
+        XCTAssertTrue(adapter.responds(to: registrationSelector))
+        XCTAssertTrue(adapter.responds(to: unregisterSelector))
+
+        adapter.perform(registrationSelector, with: Messaging.messaging(), with: "fid_registered")
+        adapter.perform(unregisterSelector, with: Messaging.messaging(), with: "fid_unregistered")
+
+        XCTAssertEqual(mockDelegate.receivedRegistrations, ["fid_registered"])
+        XCTAssertEqual(mockDelegate.receivedUnregistrations, ["fid_unregistered"])
+        XCTAssertEqual(mockDelegate.tokenCallCount, 0)
+    }
+
+    func testDidReceiveRegistration_whenInstallationIdIsNil_thenNilIsForwarded() {
+        adapter.messaging(Messaging.messaging(), didReceiveRegistration: nil)
+
+        XCTAssertEqual(mockDelegate.receivedRegistrations, [nil])
+    }
+
+    func testFidDelegateMethods_whenDelegateIsNil_thenNothingIsForwarded() {
+        adapter.cioFCMMessagingDelegate = nil
+
+        adapter.messaging(Messaging.messaging(), didReceiveRegistration: "fid")
+        adapter.messaging(Messaging.messaging(), didUnregister: "fid")
+
+        XCTAssertTrue(mockDelegate.receivedRegistrations.isEmpty)
+        XCTAssertTrue(mockDelegate.receivedUnregistrations.isEmpty)
+    }
 }
 
 // MARK: - Mock FirebaseServiceDelegate
@@ -138,14 +172,26 @@ class FirebaseDelegateAdapterTests: XCTestCase {
 class MockFirebaseServiceDelegate: FirebaseServiceDelegate {
     var receivedToken: String?
     var tokenCallCount = 0
+    var receivedRegistrations: [String?] = []
+    var receivedUnregistrations: [String] = []
 
     func didReceiveRegistrationToken(_ token: String?) {
         receivedToken = token
         tokenCallCount += 1
     }
 
+    func didReceiveRegistration(_ installationId: String?) {
+        receivedRegistrations.append(installationId)
+    }
+
+    func didUnregister(_ installationId: String) {
+        receivedUnregistrations.append(installationId)
+    }
+
     func reset() {
         receivedToken = nil
         tokenCallCount = 0
+        receivedRegistrations = []
+        receivedUnregistrations = []
     }
 }
