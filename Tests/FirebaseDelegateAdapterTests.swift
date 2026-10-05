@@ -134,19 +134,15 @@ class FirebaseDelegateAdapterTests: XCTestCase {
 
     // MARK: - FID Delegate Forwarding Tests
 
-    // Firebase checks these selectors with respondsToSelector: and calls them through the Objective-C runtime.
-    func testFidDelegateSelectors_whenFirebaseCallsThem_thenTheyAreForwarded() {
+    // Firebase checks this selector with respondsToSelector: and calls it through the Objective-C runtime.
+    func testFidDelegateSelector_whenFirebaseCallsIt_thenItIsForwarded() {
         let registrationSelector = NSSelectorFromString("messaging:didReceiveRegistration:")
-        let unregisterSelector = NSSelectorFromString("messaging:didUnregister:")
 
         XCTAssertTrue(adapter.responds(to: registrationSelector))
-        XCTAssertTrue(adapter.responds(to: unregisterSelector))
 
         adapter.perform(registrationSelector, with: Messaging.messaging(), with: "fid_registered")
-        adapter.perform(unregisterSelector, with: Messaging.messaging(), with: "fid_unregistered")
 
         XCTAssertEqual(mockDelegate.receivedRegistrations, ["fid_registered"])
-        XCTAssertEqual(mockDelegate.receivedUnregistrations, ["fid_unregistered"])
         XCTAssertEqual(mockDelegate.tokenCallCount, 0)
     }
 
@@ -156,14 +152,12 @@ class FirebaseDelegateAdapterTests: XCTestCase {
         XCTAssertEqual(mockDelegate.receivedRegistrations, [nil])
     }
 
-    func testFidDelegateMethods_whenDelegateIsNil_thenNothingIsForwarded() {
+    func testDidReceiveRegistration_whenDelegateIsNil_thenNothingIsForwarded() {
         adapter.cioFCMMessagingDelegate = nil
 
         adapter.messaging(Messaging.messaging(), didReceiveRegistration: "fid")
-        adapter.messaging(Messaging.messaging(), didUnregister: "fid")
 
         XCTAssertTrue(mockDelegate.receivedRegistrations.isEmpty)
-        XCTAssertTrue(mockDelegate.receivedUnregistrations.isEmpty)
     }
 }
 
@@ -173,7 +167,6 @@ class MockFirebaseServiceDelegate: FirebaseServiceDelegate {
     var receivedToken: String?
     var tokenCallCount = 0
     var receivedRegistrations: [String?] = []
-    var receivedUnregistrations: [String] = []
 
     func didReceiveRegistrationToken(_ token: String?) {
         receivedToken = token
@@ -184,14 +177,9 @@ class MockFirebaseServiceDelegate: FirebaseServiceDelegate {
         receivedRegistrations.append(installationId)
     }
 
-    func didUnregister(_ installationId: String) {
-        receivedUnregistrations.append(installationId)
-    }
-
     func reset() {
         receivedToken = nil
         tokenCallCount = 0
         receivedRegistrations = []
-        receivedUnregistrations = []
     }
 }
