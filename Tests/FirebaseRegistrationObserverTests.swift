@@ -48,32 +48,11 @@ class FirebaseRegistrationObserverTests: XCTestCase {
         XCTAssertEqual(mockDelegate.tokenCallCount, 1)
     }
 
-    func testInstallationIdUnregistered_expectUnregister() {
-        notificationCenter.post(name: FirebaseRegistrationObserver.installationIdUnregistered, object: "fid")
-
-        XCTAssertEqual(mockDelegate.receivedUnregistrations, ["fid"])
-    }
-
-    func testInstallationIdUnregistered_givenFirebaseWithFidRegistration_expectFirebaseNotificationName() throws {
-        guard Messaging.instancesRespond(to: NSSelectorFromString("registerWithCompletion:")) else {
-            throw XCTSkip("FirebaseMessaging before 12.16.0")
-        }
-        // Firebase's constant, looked up at runtime because older Firebase versions don't have it.
-        // Needs Firebase's exported symbols, as in the SwiftPM source build.
-        let rtldDefault = UnsafeMutableRawPointer(bitPattern: -2)
-        let symbol = try XCTUnwrap(dlsym(rtldDefault, "FIRMessagingInstallationIdUnregisteredNotification"))
-        let firebaseName = symbol.assumingMemoryBound(to: NSString.self).pointee
-
-        XCTAssertEqual(FirebaseRegistrationObserver.installationIdUnregistered.rawValue, firebaseName as String)
-    }
-
-    func testNotifications_givenNoDelegate_expectNothingForwarded() {
+    func testRegistrationRefreshed_givenNoDelegate_expectNothingForwarded() {
         observer.delegate = nil
 
         notificationCenter.post(name: .MessagingRegistrationTokenRefreshed, object: "fcm_token")
-        notificationCenter.post(name: FirebaseRegistrationObserver.installationIdUnregistered, object: "fid")
 
         XCTAssertEqual(mockDelegate.tokenCallCount, 0)
-        XCTAssertTrue(mockDelegate.receivedUnregistrations.isEmpty)
     }
 }

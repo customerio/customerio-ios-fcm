@@ -64,12 +64,9 @@ class FirebaseImpl: FirebaseService {
     }
 }
 
-// Forwards Firebase's registration updates from its notifications instead of taking over `Messaging.delegate`,
-// so the app's own MessagingDelegate keeps working. Firebase posts them whenever it calls its delegate (checked 8.7.0 to 12.17.0).
+// Forwards Firebase's registration updates from its notification instead of taking over `Messaging.delegate`,
+// so the app's own MessagingDelegate keeps working. Firebase posts it whenever it calls its delegate (checked 8.7.0 to 12.17.0).
 class FirebaseRegistrationObserver: NSObject {
-    // Firebase's `messagingInstallationIdUnregistered`, added in 12.16.0. By value so it builds with older versions.
-    static let installationIdUnregistered = Notification.Name("com.firebase.messaging.notif.installation-id-unregistered")
-
     weak var delegate: FirebaseServiceDelegate?
     var isInstallationIdEnabled: () -> Bool = { false }
 
@@ -79,12 +76,6 @@ class FirebaseRegistrationObserver: NSObject {
             self,
             selector: #selector(registrationRefreshed(_:)),
             name: .MessagingRegistrationTokenRefreshed,
-            object: nil
-        )
-        notificationCenter.addObserver(
-            self,
-            selector: #selector(installationIdUnregistered(_:)),
-            name: Self.installationIdUnregistered,
             object: nil
         )
     }
@@ -97,10 +88,5 @@ class FirebaseRegistrationObserver: NSObject {
         } else {
             delegate?.didReceiveRegistrationToken(registration)
         }
-    }
-
-    @objc private func installationIdUnregistered(_ notification: Notification) {
-        guard let installationId = notification.object as? String else { return }
-        delegate?.didUnregister(installationId)
     }
 }
