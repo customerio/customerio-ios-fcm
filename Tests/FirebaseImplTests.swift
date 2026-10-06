@@ -9,6 +9,11 @@ private final class FIDMessagingStub: NSObject {
     var installationIdEnabled = false
     var registerError: Error?
     var registerCallCount = 0
+    var delegateSetCount = 0
+
+    @objc var delegate: AnyObject? {
+        didSet { delegateSetCount += 1 }
+    }
 
     @objc var isInstallationIdEnabled: Bool {
         installationIdEnabled
@@ -35,18 +40,21 @@ private extension Messaging {
 
 class FirebaseImplTests: XCTestCase {
     private var firebaseImpl: FirebaseImpl!
+    private var notificationCenter: NotificationCenter!
 
     override func setUp() {
         super.setUp()
 
         Messaging.swizzleFIDMessaging()
-        firebaseImpl = FirebaseImpl()
+        notificationCenter = NotificationCenter()
+        firebaseImpl = FirebaseImpl(notificationCenter: notificationCenter)
     }
 
     override func tearDown() {
         Messaging.swizzleFIDMessaging() // swaps back
         FIDMessagingStub.current = NSObject()
         firebaseImpl = nil
+        notificationCenter = nil
 
         super.tearDown()
     }
@@ -94,5 +102,40 @@ class FirebaseImplTests: XCTestCase {
         XCTAssertEqual(messaging.registerCallCount, 1)
         XCTAssertNil(result?.fid)
         XCTAssertEqual(result?.error as? TestError, .networkError)
+    }
+
+    func testDelegate_whenSet_expectAppMessagingDelegateUntouched() {
+        let messaging = FIDMessagingStub()
+        FIDMessagingStub.current = messaging
+        let delegate = MockFirebaseServiceDelegate()
+
+        firebaseImpl.delegate = delegate
+
+        XCTAssertTrue(firebaseImpl.delegate === delegate)
+        XCTAssertEqual(messaging.delegateSetCount, 0)
+    }
+
+    func testRegistrationRefreshed_givenFidModeOn_expectRegistration() {
+        let messaging = FIDMessagingStub()
+        messaging.installationIdEnabled = true
+        FIDMessagingStub.current = messaging
+        let delegate = MockFirebaseServiceDelegate()
+        firebaseImpl.delegate = delegate
+
+        notificationCenter.post(name: .MessagingRegistrationTokenRefreshed, object: "fid")
+
+        XCTAssertEqual(delegate.receivedRegistrations, ["fid"])
+        XCTAssertEqual(delegate.tokenCallCount, 0)
+    }
+
+    func testRegistrationRefreshed_givenFirebaseWithoutFidRegistration_expectToken() {
+        FIDMessagingStub.current = NSObject()
+        let delegate = MockFirebaseServiceDelegate()
+        firebaseImpl.delegate = delegate
+
+        notificationCenter.post(name: .MessagingRegistrationTokenRefreshed, object: "fcm_token")
+
+        XCTAssertEqual(delegate.receivedToken, "fcm_token")
+        XCTAssertTrue(delegate.receivedRegistrations.isEmpty)
     }
 }

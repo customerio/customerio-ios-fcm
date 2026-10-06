@@ -10,7 +10,14 @@ import FirebaseMessaging
 }
 
 class FirebaseImpl: FirebaseService {
-    private let firebaseAdapter = FirebaseDelegateAdapter(cioFCMMessagingDelegate: nil)
+    private let registrationObserver: FirebaseRegistrationObserver
+
+    init(notificationCenter: NotificationCenter = .default) {
+        self.registrationObserver = FirebaseRegistrationObserver(notificationCenter: notificationCenter)
+        registrationObserver.isInstallationIdEnabled = { [weak self] in
+            self?.isInstallationIdEnabled ?? false
+        }
+    }
 
     public var apnsToken: Data? {
         get { Messaging.messaging().apnsToken }
@@ -18,11 +25,8 @@ class FirebaseImpl: FirebaseService {
     }
 
     public var delegate: FirebaseServiceDelegate? {
-        get { firebaseAdapter.cioFCMMessagingDelegate }
-        set {
-            firebaseAdapter.cioFCMMessagingDelegate = newValue
-            Messaging.messaging().delegate = firebaseAdapter
-        }
+        get { registrationObserver.delegate }
+        set { registrationObserver.delegate = newValue }
     }
 
     public func fetchToken(completion: @escaping (String?, Error?) -> Void) {
@@ -60,22 +64,29 @@ class FirebaseImpl: FirebaseService {
     }
 }
 
-// Firebase delegate adapter to bridge between CioFCMMessagingDelegate and MessagingDelegate
-class FirebaseDelegateAdapter: NSObject, MessagingDelegate {
-    weak var cioFCMMessagingDelegate: FirebaseServiceDelegate?
+// Forwards Firebase's registration updates from its notification instead of taking over `Messaging.delegate`,
+// so the app's own MessagingDelegate keeps working. Firebase posts it whenever it calls its delegate (checked 8.7.0 to 12.17.0).
+class FirebaseRegistrationObserver: NSObject {
+    weak var delegate: FirebaseServiceDelegate?
+    var isInstallationIdEnabled: () -> Bool = { false }
 
-    public init(cioFCMMessagingDelegate: FirebaseServiceDelegate?) {
-        self.cioFCMMessagingDelegate = cioFCMMessagingDelegate
+    init(notificationCenter: NotificationCenter) {
+        super.init()
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(registrationRefreshed(_:)),
+            name: .MessagingRegistrationTokenRefreshed,
+            object: nil
+        )
     }
 
-    public func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        cioFCMMessagingDelegate?.didReceiveRegistrationToken(fcmToken)
-    }
-
-    // FID delegate method, added in FirebaseMessaging 12.16.0. Explicit selector because older versions
-    // don't declare it in MessagingDelegate, so Swift wouldn't expose it to Objective-C on its own.
-    @objc(messaging:didReceiveRegistration:)
-    public func messaging(_ messaging: Messaging, didReceiveRegistration installationId: String?) {
-        cioFCMMessagingDelegate?.didReceiveRegistration(installationId)
+    // Carries the FID in FID mode, otherwise the token. Same check Firebase uses to pick its delegate method.
+    @objc private func registrationRefreshed(_ notification: Notification) {
+        let registration = notification.object as? String
+        if isInstallationIdEnabled() {
+            delegate?.didReceiveRegistration(registration)
+        } else {
+            delegate?.didReceiveRegistrationToken(registration)
+        }
     }
 }
