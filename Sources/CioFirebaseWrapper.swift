@@ -71,4 +71,11 @@ class FirebaseDelegateAdapter: NSObject, MessagingDelegate {
     public func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         cioFCMMessagingDelegate?.didReceiveRegistrationToken(fcmToken)
     }
+
+    // FID delegate method, added in FirebaseMessaging 12.16.0. Explicit selector because older versions
+    // don't declare it in MessagingDelegate, so Swift wouldn't expose it to Objective-C on its own.
+    @objc(messaging:didReceiveRegistration:)
+    public func messaging(_ messaging: Messaging, didReceiveRegistration installationId: String?) {
+        cioFCMMessagingDelegate?.didReceiveRegistration(installationId)
+    }
 }

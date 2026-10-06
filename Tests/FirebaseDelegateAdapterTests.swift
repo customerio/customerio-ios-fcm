@@ -131,6 +131,34 @@ class FirebaseDelegateAdapterTests: XCTestCase {
         XCTAssertNil(adapter.cioFCMMessagingDelegate)
         XCTAssertEqual(mockDelegate.tokenCallCount, 0)
     }
+
+    // MARK: - FID Delegate Forwarding Tests
+
+    // Firebase checks this selector with respondsToSelector: and calls it through the Objective-C runtime.
+    func testFidDelegateSelector_whenFirebaseCallsIt_thenItIsForwarded() {
+        let registrationSelector = NSSelectorFromString("messaging:didReceiveRegistration:")
+
+        XCTAssertTrue(adapter.responds(to: registrationSelector))
+
+        adapter.perform(registrationSelector, with: Messaging.messaging(), with: "fid_registered")
+
+        XCTAssertEqual(mockDelegate.receivedRegistrations, ["fid_registered"])
+        XCTAssertEqual(mockDelegate.tokenCallCount, 0)
+    }
+
+    func testDidReceiveRegistration_whenInstallationIdIsNil_thenNilIsForwarded() {
+        adapter.messaging(Messaging.messaging(), didReceiveRegistration: nil)
+
+        XCTAssertEqual(mockDelegate.receivedRegistrations, [nil])
+    }
+
+    func testDidReceiveRegistration_whenDelegateIsNil_thenNothingIsForwarded() {
+        adapter.cioFCMMessagingDelegate = nil
+
+        adapter.messaging(Messaging.messaging(), didReceiveRegistration: "fid")
+
+        XCTAssertTrue(mockDelegate.receivedRegistrations.isEmpty)
+    }
 }
 
 // MARK: - Mock FirebaseServiceDelegate
@@ -138,14 +166,20 @@ class FirebaseDelegateAdapterTests: XCTestCase {
 class MockFirebaseServiceDelegate: FirebaseServiceDelegate {
     var receivedToken: String?
     var tokenCallCount = 0
+    var receivedRegistrations: [String?] = []
 
     func didReceiveRegistrationToken(_ token: String?) {
         receivedToken = token
         tokenCallCount += 1
     }
 
+    func didReceiveRegistration(_ installationId: String?) {
+        receivedRegistrations.append(installationId)
+    }
+
     func reset() {
         receivedToken = nil
         tokenCallCount = 0
+        receivedRegistrations = []
     }
 }
