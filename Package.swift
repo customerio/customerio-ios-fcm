@@ -14,7 +14,7 @@ let package = Package(
         )
     ],
     dependencies: [
-         .package(url: "https://github.com/customerio/customerio-ios.git", from: "4.0.0"),
+         .package(url: "https://github.com/customerio/customerio-ios.git", branch: "feature/firebase-installation-id"),
          .package(url: "https://github.com/firebase/firebase-ios-sdk.git", "8.7.0"..<"13.0.0")
     ],
     targets: [
@@ -22,7 +22,8 @@ let package = Package(
             name: "CioFirebaseWrapper",
             dependencies: [
                 .product(name: "MessagingPushFCM", package: "customerio-ios"),
-                .product(name: "FirebaseMessaging", package: "firebase-ios-sdk")
+                .product(name: "FirebaseMessaging", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseInstallations", package: "firebase-ios-sdk")
             ],
             path: "Sources"
         ),
