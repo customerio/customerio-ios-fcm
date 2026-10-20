@@ -11,7 +11,7 @@ concurrency: # cancel previous workflow run if one exists.
 
 jobs:
   test:
-    uses: customerio/mobile-ci-tools/.github/workflows/ios-test.yml@main
+    uses: customerio/mobile-ci-tools/.github/workflows/ios-test.yml@ci/node24-actions
     with:
       scheme: 'CioFirebaseWrapper'
       xcresult-name: 'CioFirebaseWrapper.xcresult'
