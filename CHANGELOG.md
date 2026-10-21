@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/customerio/customerio-ios-fcm/compare/1.0.1...1.1.0) (2026-10-21)
+
+### Features
+
+* register with Firebase Installation ID ([#21](https://github.com/customerio/customerio-ios-fcm/issues/21)) ([ae9612b](https://github.com/customerio/customerio-ios-fcm/commit/ae9612bdf0f8598d536c3d3317ef9895af5e08ad))
+
 ## [1.0.1](https://github.com/customerio/customerio-ios-fcm/compare/1.0.0...1.0.1) (2026-09-08)
 
 ### Bug Fixes
