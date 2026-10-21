@@ -5,7 +5,7 @@ Customer.io SDK to abstract iOS Firebase Cloud Messaging (FCM) integration from 
 ## Requirements
 
 - iOS 15.0+
-- Xcode 26.2+ (Firebase 12.12 and later require it)
+- Xcode 26.2+ when using Firebase 12.12 or later
 
 ## Installation
 
