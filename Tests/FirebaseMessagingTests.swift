@@ -7,7 +7,6 @@ class FirebaseMessagingTests: XCTestCase {
     var mockMessagingDelegate: MockMessagingDelegate!
     var mockFirebaseServiceDelegate: MockFirebaseServiceDelegate!
     var mockFirebaseMessaging: MockFirebaseMessaging!
-    var adapter: FirebaseDelegateAdapter!
 
     override func setUp() {
         super.setUp()
@@ -19,7 +18,6 @@ class FirebaseMessagingTests: XCTestCase {
         mockMessagingDelegate = MockMessagingDelegate()
         mockFirebaseServiceDelegate = MockFirebaseServiceDelegate()
         mockFirebaseMessaging = MockFirebaseMessaging()
-        adapter = FirebaseDelegateAdapter(cioFCMMessagingDelegate: mockFirebaseServiceDelegate)
     }
 
     override func tearDown() {
@@ -29,7 +27,6 @@ class FirebaseMessagingTests: XCTestCase {
         mockMessagingDelegate = nil
         mockFirebaseServiceDelegate = nil
         mockFirebaseMessaging = nil
-        adapter = nil
 
         super.tearDown()
     }
@@ -176,55 +173,6 @@ class FirebaseMessagingTests: XCTestCase {
         // Should not crash and delegate should not be called
         XCTAssertFalse(mockMessagingDelegate.didReceiveRegistrationTokenCalled)
         XCTAssertNil(mockMessagingDelegate.fcmTokenReceived)
-    }
-
-    // MARK: - FirebaseDelegateAdapter Integration Tests
-
-    func testFirebaseDelegateAdapterWithMockFirebaseServiceDelegate() {
-        // Given
-        let expectedToken = TestData.validFCMToken
-        let mockMessaging = Messaging.messaging()
-        let mockFirebaseServiceDelegate = MockFirebaseServiceDelegate()
-        let adapter = FirebaseDelegateAdapter(cioFCMMessagingDelegate: mockFirebaseServiceDelegate)
-
-        // When
-        adapter.messaging(mockMessaging, didReceiveRegistrationToken: expectedToken)
-
-        // Then
-        XCTAssertEqual(mockFirebaseServiceDelegate.receivedToken, expectedToken)
-        XCTAssertEqual(mockFirebaseServiceDelegate.tokenCallCount, 1)
-    }
-
-    func testFirebaseDelegateAdapterWithNilDelegate() {
-        // Given
-        let adapterWithNilDelegate = FirebaseDelegateAdapter(cioFCMMessagingDelegate: nil)
-        let expectedToken = TestData.validFCMToken
-        let mockMessaging = Messaging.messaging()
-
-        // When
-        adapterWithNilDelegate.messaging(mockMessaging, didReceiveRegistrationToken: expectedToken)
-
-        // Then
-        // Should not crash when delegate is nil
-        XCTAssertNil(adapterWithNilDelegate.cioFCMMessagingDelegate)
-    }
-
-    func testFirebaseDelegateAdapterDelegateChange() {
-        // Given
-        let newDelegate = MockFirebaseServiceDelegate()
-        let expectedToken = TestData.validFCMToken
-        let mockMessaging = Messaging.messaging()
-        let mockFirebaseServiceDelegate = MockFirebaseServiceDelegate()
-        let adapter = FirebaseDelegateAdapter(cioFCMMessagingDelegate: mockFirebaseServiceDelegate)
-
-        // When
-        adapter.cioFCMMessagingDelegate = newDelegate
-        adapter.messaging(mockMessaging, didReceiveRegistrationToken: expectedToken)
-
-        // Then
-        XCTAssertEqual(newDelegate.receivedToken, expectedToken)
-        XCTAssertEqual(newDelegate.tokenCallCount, 1)
-        XCTAssertEqual(mockFirebaseServiceDelegate.tokenCallCount, 0)
     }
 
     // MARK: - Error Handling Tests
