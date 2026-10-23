@@ -6,13 +6,15 @@ scheme("CioFirebaseWrapper")
 # Device and OS are both pinned: when a destination does not resolve, fastlane logs
 # "couldn't find matching simulator" and quietly falls back to another one, making the tested
 # OS an accident of the runner image. That is exactly how this repo ended up testing on iOS
-# 18.5 for months. iOS 26.2 ships on both macos-15 and macos-26, so this survives the runner
-# migration — but it only resolves because CI selects Xcode 26.x. An older image-default Xcode
-# cannot drive a 26.x runtime, so this depends on the xcode-version pin in mobile-ci-tools'
-# ios-test.yml. Change one, check the other.
+# 18.5 for months. iOS 26.5 is the simulator runtime that ships with Xcode 26.6, the version
+# mobile-ci-tools' ios-test.yml selects on macos-26 (Xcode 26.6 has no 26.6 runtime). An older
+# Xcode cannot drive a newer runtime, so this depends on that xcode-version pin. Change one,
+# check the other.
 devices([
-  "iPhone 17 (26.2)"
+  "iPhone 17 (26.5)"
 ])
+# Fail instead of falling back when the destination above does not resolve.
+ensure_devices_found(true)
 
 output_types("html,junit")
 output_files("test-report.html,test-report.xml")
