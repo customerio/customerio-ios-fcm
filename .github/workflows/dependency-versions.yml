@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Assert SwiftPM and CocoaPods allow the same versions
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Asks the API for the file list rather than diffing locally, which would need the full history fetched
       # just to answer one question.

@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = "CioFirebaseWrapper"
-  spec.version      = "1.0.1"
+  spec.version      = "1.1.0"
   spec.summary      = "Customer.io Firebase Wrapper SDK for iOS."
   spec.homepage     = "https://github.com/customerio/customerio-ios-fcm"
   spec.documentation_url = 'https://customer.io/docs/sdk/ios/'
@@ -20,10 +20,12 @@ Pod::Spec.new do |spec|
   
   spec.module_name = "CioFirebaseWrapper"
   
-  # Add main SDK dependency. Upper bound mirrors `from: "4.0.0"` in Package.swift, which SwiftPM resolves
-  # as ">= 4.0.0, < 5.0.0" - both package managers must allow the same versions.
-  spec.dependency "CustomerIOMessagingPushFCM", ">= 4.0.0", "< 5.0.0"
+  # Add main SDK dependency. Upper bound mirrors `from: "4.11.0"` in Package.swift, which SwiftPM resolves
+  # as ">= 4.11.0, < 5.0.0" - both package managers must allow the same versions.
+  spec.dependency "CustomerIOMessagingPushFCM", ">= 4.11.0", "< 5.0.0"
 
   # Add Firebase dependency - 8.7.0 up to but excluding the next major after 12
   spec.dependency "FirebaseMessaging", ">= 8.7.0", "< 13.0.0"
+  # Reads the Firebase Installation ID (FID) in FID mode. Same range as FirebaseMessaging, which depends on it.
+  spec.dependency "FirebaseInstallations", ">= 8.7.0", "< 13.0.0"
 end
