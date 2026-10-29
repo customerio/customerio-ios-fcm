@@ -5,4 +5,7 @@ on: [pull_request]
 jobs:
   lint:
     uses: customerio/mobile-ci-tools/.github/workflows/ios-lint.yml@main
+    with:
+      # Lint finishes in under a minute; the limit stops a hung job from holding a Mac.
+      timeout-minutes: 10
 
