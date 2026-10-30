@@ -17,6 +17,8 @@ jobs:
       # iOS simulator runtime is 27.0. Change one, check the other.
       runner-label: 'xcode-27'
       xcode-version: '27.0'
+      # About twice the longest recent run (passing or failing); the limit stops a hung run from holding a Mac.
+      timeout-minutes: 30
       scheme: 'CioFirebaseWrapper'
       xcresult-name: 'CioFirebaseWrapper.xcresult'
       # Must track the Ruby this repo's Gemfile.lock is resolved against; the lock pulls
