@@ -6,7 +6,7 @@ import XCTest
 private final class FIDMessagingStub: NSObject {
     static var current: NSObject = .init()
 
-    var installationIdEnabled = false
+        var installationIdEnabled = false
     var registerError: Error?
     var registerCallCount = 0
     var delegateSetCount = 0
