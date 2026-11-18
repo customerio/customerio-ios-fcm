@@ -16,4 +16,4 @@ Read by the local Claude review (`cio-code-review`) and by human reviewers. It a
 ## Conventions
 - SwiftPM (`Package.swift`) and CocoaPods (`CioFirebaseWrapper.podspec`) must allow the same dependency versions. CI checks this, and changes to either file always get a human review.
 - Formatting and lint come from `make format` and `make lint`. Don't report style issues those tools own.
-- Tests live in `Tests/` and use XCTest.
+- Tests live in `Tests/` and use XCTest. CI runs the tests, lint and format checks. Leave them out of "Not covered", which is for code you could not read.
