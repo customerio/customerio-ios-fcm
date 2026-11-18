@@ -2,7 +2,8 @@
 import FirebaseMessaging
 import XCTest
 
-/// Stands in for `Messaging` on Firebase versions with FID registration (12.16.0+).
+/// Stands in for `Messaging` on Firebase versions with FID registration (12.16.0+),
+/// so tests can control registration without configuring a Firebase app.
 private final class FIDMessagingStub: NSObject {
     static var current: NSObject = .init()
 
