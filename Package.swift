@@ -4,6 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "CioFirebaseWrapper",
+    // Matches the deployment target in CioFirebaseWrapper.podspec.
     platforms: [
         .iOS(.v15)
     ],
