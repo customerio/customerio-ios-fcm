@@ -1,0 +1,21 @@
+{
+  "team": "squad-mobile",
+  "protected_paths": [
+    "Package.swift",
+    "*.podspec",
+    ".releaserc.json",
+    "CHANGELOG.md",
+    "scripts/**",
+    "fastlane/**",
+    "Gemfile",
+    "Gemfile.lock",
+    "dangerfile.js",
+    "binny-tools.yml",
+    "lefthook.yml",
+    "Makefile",
+    ".swiftlint.yml",
+    ".swiftformat"
+  ],
+  "advisory_checks": [],
+  "ignored_checks": ["sdk-team-review-dismiss"]
+}

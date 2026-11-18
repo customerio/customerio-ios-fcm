@@ -1,0 +1,34 @@
+name: SDK team review dismiss
+
+# Dismisses the approver bot's approval when the PR changes after it: a new push,
+# a rebase, or a new base branch. A bot approval only ever covers the commit the
+# local review saw. Human approvals are left alone. The pull_request_review
+# trigger catches a bot approval that lands after a push.
+
+on:
+  pull_request:
+    types: [synchronize, edited]
+  pull_request_review:
+    types: [submitted]
+
+permissions: {}
+
+jobs:
+  sdk-team-review-dismiss:
+    # Fork PRs never get a bot approval, and their token can't dismiss reviews.
+    # An edit only matters when it changed the base branch.
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      (github.event.action != 'edited' || github.event.changes.base != null)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: customerio/mobile-ci-tools/github-actions/sdk-team-review/v1@sdk-team-review
+        with:
+          command: dismiss
+          github-token: ${{ github.token }}
+          pr-number: ${{ github.event.pull_request.number }}
+          bot-login: ${{ vars.SDK_TEAM_REVIEW_BOT_LOGIN || 'sdk-team-review[bot]' }}
+          base-changed: ${{ github.event.action == 'edited' && github.event.changes.base != null }}
