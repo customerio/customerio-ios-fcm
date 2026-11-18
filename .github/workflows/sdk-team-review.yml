@@ -1,0 +1,81 @@
+name: SDK team review
+
+# Started by the sdk-team-review skill after a local Claude review of a PR passes.
+# Shadow mode (the default) comments on the PR what the approver bot would do.
+# Enforce mode (repo variable SDK_TEAM_REVIEW_MODE=enforce) approves the reviewed
+# commit when CI is green and the head has not moved. The approver app's key sits
+# in the sdk-team-review environment, which only the default branch can use, so a
+# run started from another branch never sees it.
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull request number.'
+        required: true
+        type: string
+      head_sha:
+        description: 'Commit the local review covered.'
+        required: true
+        type: string
+      attestation:
+        description: 'Review summary JSON from the sdk-team-review skill.'
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: sdk-team-review-${{ inputs.pr_number }}
+  cancel-in-progress: false
+
+jobs:
+  shadow:
+    if: vars.SDK_TEAM_REVIEW_MODE != 'enforce' && github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: read
+      statuses: read
+    steps:
+      - uses: customerio/mobile-ci-tools/github-actions/sdk-team-review/v1@sdk-team-review
+        with:
+          command: evaluate
+          mode: shadow
+          github-token: ${{ github.token }}
+          pr-number: ${{ inputs.pr_number }}
+          head-sha: ${{ inputs.head_sha }}
+          attestation: ${{ inputs.attestation }}
+          actor: ${{ github.triggering_actor }}
+
+  enforce:
+    if: vars.SDK_TEAM_REVIEW_MODE == 'enforce' && github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: sdk-team-review
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: read
+      statuses: read
+    steps:
+      - name: Get approver app token
+        id: app-token
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+        with:
+          client-id: ${{ secrets.SDK_TEAM_REVIEW_APP_CLIENT_ID }}
+          private-key: ${{ secrets.SDK_TEAM_REVIEW_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - uses: customerio/mobile-ci-tools/github-actions/sdk-team-review/v1@sdk-team-review
+        with:
+          command: evaluate
+          mode: enforce
+          github-token: ${{ github.token }}
+          app-token: ${{ steps.app-token.outputs.token }}
+          pr-number: ${{ inputs.pr_number }}
+          head-sha: ${{ inputs.head_sha }}
+          attestation: ${{ inputs.attestation }}
+          actor: ${{ github.triggering_actor }}
