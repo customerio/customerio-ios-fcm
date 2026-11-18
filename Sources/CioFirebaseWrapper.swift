@@ -45,7 +45,6 @@ class FirebaseImpl: FirebaseService {
         fidRegistration.register { error in
             if let error = error {
                 completion(nil, error)
-                return
             }
             // The FID Firebase registered with FCM
             Installations.installations().installationID(completion: completion)
